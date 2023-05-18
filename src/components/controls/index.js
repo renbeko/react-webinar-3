@@ -1,21 +1,29 @@
 import React from "react";
 import PropTypes from 'prop-types';
+import { plural } from "../../utils";
 import './style.css';
 
-function Controls({onAdd}){
+function Controls({ setPopupVisible, total, amount }) {
   return (
     <div className='Controls'>
-      <button onClick={() => onAdd()}>Добавить</button>
-    </div>
+      <div className='Controls-basket'>
+        В корзине:
+        {amount > 0
+          ? <span>{amount} {plural(amount, { one: 'товар', few: 'товара', many: 'товаров' })} / {total.toLocaleString('ru-RU') } ₽</span>
+          : <span>пусто</span>
+        }
+
+      </div>
+      <button onClick={() => setPopupVisible(true)}>Перейти</button>    </div>
   )
 }
 
 Controls.propTypes = {
-  onAdd: PropTypes.func
+  setPopupVisible: PropTypes.func
 };
 
 Controls.defaultProps = {
-  onAdd: () => {}
+  setPopupVisible: () => {}
 }
 
 export default React.memo(Controls);
