@@ -1,29 +1,36 @@
 import React from "react";
 import PropTypes from 'prop-types';
-import { plural } from "../../utils";
+import plural from "plural-ru";
 import './style.css';
 
-function Controls({ setPopupVisible, total, amount }) {
-  return (
-    <div className='Controls'>
-      <div className='Controls-basket'>
-        В корзине:
-        {amount > 0
-          ? <span>{amount} {plural(amount, { one: 'товар', few: 'товара', many: 'товаров' })} / {total.toLocaleString('ru-RU') } ₽</span>
-          : <span>пусто</span>
-        }
-
-      </div>
-      <button onClick={() => setPopupVisible(true)}>Перейти</button>    </div>
-  )
+function Controls({totalCount, totalPrice, openCart}) {
+		
+	return (
+		<div className='Controls'>
+			<span className='Controls-text'>В корзине:</span>
+			<span className='Controls-total'>
+                {(totalCount > 0) ? totalCount + ' ' +
+	                plural(totalCount, 'товар', 'товара', 'товаров') + ' / ' +
+                    (totalPrice.toLocaleString('ru-RU'))  + ' ₽' +
+                    '  ' : 'пусто'}
+            </span>
+			<button className='Controls-button'
+			        onClick={openCart}>
+                Перейти
+			</button>
+		</div>
+	)
 }
 
 Controls.propTypes = {
-  setPopupVisible: PropTypes.func
+	totalCount: PropTypes.number.isRequired,
+	totalPrice: PropTypes.number.isRequired,
+	openCart: PropTypes.func.isRequired,
 };
 
 Controls.defaultProps = {
-  setPopupVisible: () => {}
+	totalCount: 0,
+    totalPrice: 0,
 }
 
 export default React.memo(Controls);

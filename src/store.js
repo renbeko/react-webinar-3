@@ -1,4 +1,7 @@
-/* Хранилище состояния приложения */
+
+/**
+ * Хранилище состояния приложения
+ */
 class Store {
   constructor(initState = {}) {
     this.state = initState;
@@ -37,47 +40,66 @@ class Store {
   }
 
   /**
-   * Добавление новой записи
-   * @param item {Object}
-   */
-  onAddItemBasket(item) {
-    if (this.state.basketList.find(basketItem => basketItem.code === item.code)) {
-      this.setState({
-        ...this.state,
-        basketList: this.state.basketList.map(basketItem => {
-          if (item.code === basketItem.code) {
-            return {
-              ...basketItem,
-              count: basketItem.count + 1
-            }
-          }
-          return basketItem
-        })
-      })
-    } else {
-      this.setState({
-        ...this.state,
-        basketList: [...this.state.basketList, {
-          code: item.code,
-          title: item.title,
-          price: item.price,
-          count: 1
-        }]
-      })
-    }
-  };
-
-  /**
-   * Удаление записи по коду
+   * Удаление товара по коду из корзины
    * @param code
    */
-  deleteItem(code) {
+  deleteCartItem(code) {
     this.setState({
       ...this.state,
       // Новый список, в котором не будет удаляемой записи
-      basketList: this.state.basketList.filter(item => item.code !== code)
+      cartItems: this.state.cartItems.filter(item => item.code !== code)
     })
   };
+
+  /**
+   * Добавление товара по коду в корзину
+   */
+  addCartItem(code) {
+    const findItem = this.state.list.find(item => item.code === code);
+    const cartItem = this.state.cartItems.find(item => item.code === code);
+    if (!!findItem) {
+      if (!cartItem) {
+        this.setState({
+          ...this.state,
+          cartItems: this.state.cartItems.concat(findItem),
+        });
+      }
+      return this.setState({
+        ...this.state,
+        cartItems: this.state.cartItems.map(item => {
+          if (item.code === code) {
+            return {
+              ...item,
+              count: isNaN(item.count) ? 1 : item.count + 1,
+            }
+          }
+          return item;
+        }),
+      });
+    }
+  }
+
+  /**
+   * Расчет суммы товара в корзине
+   */
+  setTotalPrice() {
+    this.setState({
+      ...this.state,
+      totalPrice: this.state.cartItems.reduce((sum, item) => {
+        return item.price * item.count + sum;
+      }, 0),
+    });
+  }
+
+  /**
+   * Расчет количества уникальных товаров в корзине
+   */
+  setTotalCount() {
+    this.setState({
+      ...this.state,
+      totalCount: this.state.cartItems.length,
+    });
+  }
 }
 
 export default Store;

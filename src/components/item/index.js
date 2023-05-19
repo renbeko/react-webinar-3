@@ -1,56 +1,48 @@
-import React, { useState } from "react";
+import React, {useCallback} from "react";
 import PropTypes from "prop-types";
-import { plural } from "../../utils";
 import './style.css';
 
-function Item(props) {
-
-  const callbacks = {
-    onDelete: (e) => {
-      e.stopPropagation();
-      props.onDelete(props.item.code);
-    },
-
-    onAddItemBasket: (e) => {
-      e.stopPropagation();
-      props.onAddItemBasket(props.item);
-    }
-  }
-
-  return (
-    <div className={'Item'}
-      onClick={callbacks.onClick} >
-      <div className='Item-code'>{props.item.code}</div>
-      <div className='Item-title'>
-        {props.item.title}
-      </div>
-      <div className='Item-actions'>
-        <div className='Item-price'>{props.item.price.toLocaleString('ru-RU') } ₽</div>
-        {props.item.count && (
-          <div className='Item-count'>{props.item.count} шт</div>
-        )}
-        {props.onDelete && (
-          <button onClick={callbacks.onDelete}>
-            Удалить
-          </button>
-        )}
-        {props.onAddItemBasket && (
-          <button onClick={callbacks.onAddItemBasket}>
-            Добавить
-          </button>
-        )}
-      </div>
-    </div >
-  );
+function Item({item, onAddCartItem}) {
+	
+	const callbacks = {
+		example: useCallback(() => {
+			console.log(item.code);
+		}, [item]),
+		onAdd: useCallback(() => {
+			onAddCartItem(item.code);
+		}, [onAddCartItem, item]),
+	}
+	
+	return (
+		<div className='Item'>
+			<div className='Item-code'>{item.code}</div>
+			<div className='Item-title'>
+				{item.title}
+			</div>
+			<div className='Item-price'>
+				{Intl.NumberFormat('ru-RU').format(item.price)} ₽
+			</div>
+			<div className='Item-actions'>
+				<button className='Item-button' onClick={callbacks.onAdd}>
+					Добавить
+				</button>
+			</div>
+		</div>
+	);
 }
 
 Item.propTypes = {
-  item: PropTypes.shape({
-    code: PropTypes.number,
-    title: PropTypes.string,
-  }).isRequired,
-  onDelete: PropTypes.func,
-  onSelect: PropTypes.func
+	item: PropTypes.shape({
+		code: PropTypes.number,
+		title: PropTypes.string,
+		price: PropTypes.string,
+	}).isRequired,
+	onAdd: PropTypes.func
 };
+
+Item.defaultProps = {
+	onAdd: () => {
+	},
+}
 
 export default React.memo(Item);

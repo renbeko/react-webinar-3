@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import List from "./components/list";
 import Controls from "./components/controls";
 import Head from "./components/head";
 import PageLayout from "./components/page-layout";
-import Popup from "./components/popup"
+import Cart from "./components/cart";
+import Modal from "./components/modal";
+
 /**
  * Приложение
  * @param store {Store} Хранилище состояния приложения
@@ -12,47 +14,43 @@ import Popup from "./components/popup"
 function App({ store }) {
 
   const list = store.getState().list;
+  const cartItems = store.getState().cartItems;
+  const totalPrice = store.getState().totalPrice;
+  const totalCount = store.getState().totalCount;
 
-  const basketList = store.getState().basketList;
-
-  const [popupBasketVisible, setPopupVisible] = useState(false);
-
-  const [total, setTotal] = useState(0)
+  // Состояния для модального окна
+  const [showCart, setShowCart] = useState(false);
+  const openCart = () => setShowCart(true);
+  const closeCart = () => setShowCart(false);
 
   const callbacks = {
-    onDeleteItem: useCallback((code) => {
-      store.deleteItem(code);
+    onDeleteCartItem: useCallback((code) => {
+      store.deleteCartItem(code);
+      store.setTotalPrice();
+      store.setTotalCount();
     }, [store]),
 
-    onAddItemBasket: useCallback((item) => {
-      store.onAddItemBasket(item);
+    onAddCartItem: useCallback((code) => {
+      store.addCartItem(code);
+      store.setTotalPrice();
+      store.setTotalCount();
     }, [store]),
-
-    onAddItem: useCallback(() => {
-      store.addItem();
-    }, [store])
   }
-
-  useEffect(() => {
-    let sum = 0
-
-    basketList.map(basketItem => {
-      sum += (basketItem.price * basketItem.count)
-    })
-
-    setTotal(sum)
-  }, [basketList])
 
   return (
     <PageLayout>
       <Head title='Магазин' />
-      <Controls setPopupVisible={setPopupVisible} amount={basketList.length} total={total} />
+      <Controls openCart={openCart}
+        totalPrice={totalPrice}
+        totalCount={totalCount}
+      />
       <List list={list}
-        onAddItemBasket={callbacks.onAddItemBasket} />
-      {popupBasketVisible && (
-        <Popup basketList={basketList} setPopupVisible={setPopupVisible} total={total}
-          onDeleteItem={callbacks.onDeleteItem} />
-      )}
+        onAddCartItem={callbacks.onAddCartItem} />
+      {showCart && <Modal closeCart={closeCart}>
+        <Cart totalPrice={totalPrice}
+          onDeleteCartItem={callbacks.onDeleteCartItem}
+          cartItems={cartItems} />
+      </Modal>}
     </PageLayout>
   );
 }
